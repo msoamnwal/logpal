@@ -1,0 +1,19 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /controlPanel                               Instructions.index
+GET		/											lg3.LOstep1
+GET     /step2                             			lg3.LOstep2
+#GET     /                                          Reports.route
+#GET     /oauth2callback                            Reports.oauth2callback
+
+# Ignore favicon requests
+GET        /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET        /public/                                staticDir:public
+
+# Catch all
+*           /{controller}/{action}                 {controller}.{action}

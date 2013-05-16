@@ -1,0 +1,15 @@
+# Application dependencies
+
+require:
+    - play 1.2.5
+    - com.google.api-client -> google-api-client 1.11.0-beta
+    - com.google.apis -> google-api-services-audit v1-rev3-1.8.0-beta
+    - com.google.http-client -> google-http-client-jackson2 1.11.0-beta
+    - play -> gae 1.6.0
+
+repositories:
+    - googleapis:
+        type: iBiblio
+        root: "http://mavenrepo.google-api-java-client.googlecode.com/hg/"
+        contains:
+            - com.google.apis -> *

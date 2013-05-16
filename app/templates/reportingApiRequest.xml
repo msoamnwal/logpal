@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest xmlns="google:accounts:rest:protocol" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <type>Report</type>
+    <domain>${domain}</domain>
+    <date>${date}</date>
+    <reportType>daily</reportType>
+    <reportName>${reportName}</reportName>
+</rest>

@@ -1,0 +1,91 @@
+#{extends 'main.html'/}
+#{set title:'Logpal Admin Console' /}
+ <br/>
+<div class="tabbable">
+	<ul class="nav nav-tabs">
+	  <li class="active"><a href="#tab1" data-toggle="tab">Download Reports</a></li>
+	  <li><a href="#tab2" data-toggle="tab">Token Management</a></li>
+	</ul>
+	<div class="tab-content">
+		<div id="tab1" class="tab-pane active">
+	    	<!--  Tab1 Content Start -->
+			<div class="row">
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>1. Retrive Audit Report</h5>
+			        </div>
+			        <form action="@{Instructions.RetriveAuditReporting()}" method="POST" enctype="multipart/form-data">
+			        	<textArea type="text" id="reportCriteria" name="reportCriteria" style="width:500px;"></textArea>
+			        	<br/>
+			        	<span>Eg. interval=60&startTime=2013-05-06T01:18:55.159Z&event=change_password&admin=william@firstclassmandarin.com</span>
+			        	<br/>
+					    <input type="submit" value="Get Report" />
+					</form>
+			    </div>
+
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>2. Retrive Activity Report</h5>
+			        </div>
+			        <form action="@{Instructions.RetriveActivityReporting()}" method="POST" enctype="multipart/form-data">
+			        	<select id="month" name="month" style="width:130px;">
+			        		<option value="" selected="selected" >Max retention of 2 calendar months</option>
+			        		<option value="this" >This Month</option>
+			        		<option value="last">Last Month</option>
+			        	</select>					    
+					    <input style="margin-bottom:8px;margin-left:13px;height:30px;" type="submit" value="Get Report" />
+					</form>
+			    </div>
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>2. Retrive Email Client Report</h5>
+			        </div>
+			        <form action="@{Instructions.RetriveEmailClientReporting()}" method="POST" enctype="multipart/form-data">
+			        	<select id="month" name="month" style="width:130px;">
+			        		<option value="" selected="selected" >Max retention of 2 calendar months</option>			        	
+			        		<option value="this" >This Month</option>
+			        		<option value="last">Last Month</option>
+			        	</select>					    
+					    <input style="margin-bottom:8px;margin-left:13px;height:30px;" type="submit" value="Get Report" />
+					</form>
+			    </div>
+
+
+			</div>
+			<!--  Tab2 Content End -->
+		</div>
+	    <div id="tab2" class="tab-pane">
+	    	<!--  Tab2 Content Start -->
+			<div class="row">
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>1. Retrive All User Token credentials</h5>
+			        </div>
+			        <form action="@{Instructions.Upload_getAllUserCrd()}" method="POST" enctype="multipart/form-data">
+					    <input type="File" name="requestAllUserCrd" id="requestAllUserCrd"/>
+					    <input type="submit" value="Upload CSV" />
+					</form>
+			    </div>
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>2. Retrive All User Token credentials BY Client-Id</h5>
+			        </div>
+			        <form action="@{Instructions.Upload_getAllUserCrdForClient()}" method="POST" enctype="multipart/form-data">
+					    <input type="File" name="requestAllUserForClientCrd" id="requestAllUserForClientCrd"/> 
+					    <input type="submit" value="Upload CSV" />
+					</form>
+			    </div>
+			    <div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>3. Revoke Assigned Token credentials</h5>
+			        </div>	
+			        <form action="@{Instructions.Upload_revokeUserCrd()}" method="POST" enctype="multipart/form-data">
+					    <input type="file" name="revokeUserCrd" /> 
+					    <input type="submit" value="Upload CSV" />
+					</form>
+			    </div>
+				<!--  Tab2 Content End -->
+			</div>	    
+	    </div>	    
+	</div>
+</div>
