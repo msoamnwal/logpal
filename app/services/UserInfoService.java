@@ -10,6 +10,7 @@ import play.Play;
 import play.libs.XML;
 import play.libs.XPath;
 
+import model.*;
 import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.Service.GDataRequest;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
@@ -20,14 +21,54 @@ import com.google.gdata.util.ServiceException;
  */
 public class UserInfoService implements AppConstants {
 
+	public UserDataForAuthDetail getUserDetailByToken(GoogleOAuthParameters oauthParameters, String accessToken) throws IOException {
+		//
+	   	/**
+			   * The abbreviated name of Apps for Your Domain recognized by Google.
+			   * The service name is used while requesting an authentication token.
+			*/
+		UserDataForAuthDetail userInfo = new UserDataForAuthDetail();
+		userInfo.isSuccessful = true;
+    	try{    		
+		  	String APPS_SERVICE = "apps";
+		  	//https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token="+accessToken;
+		  	String ServiceURL = "https://www.googleapis.com/userinfo/email?alt=json";
+		    GoogleService service1 = new GoogleService(APPS_SERVICE, Play.configuration.getProperty("application.name"));
+		  	service1.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer());
+
+		  	URL feedUrl = new URL(ServiceURL);
+		  	// Set up authentication.
+		    // Send the query request and receive the response
+		    GDataRequest entry = service1.createEntryRequest(feedUrl);
+		    entry.execute();
+	        String body = ServiceUtility.streamToString(entry.getResponseStream());
+	        //Logger.info("***** :<>: "+body);
+	        userInfo = SharedServices.getObject(body, UserDataForAuthDetail.class);
+	        userInfo.isSuccessful=true;
+    	}
+	  	catch(ServiceException se){
+	  		Logger.info("ServiceException :"+se.getResponseBody());
+	  		userInfo = SharedServices.getObject(se.getResponseBody(), UserDataForAuthDetail.class);
+	  		userInfo.isSuccessful = false;
+	  		userInfo.errorMsg = userInfo.error.message;	  		
+	  	}    	
+    	catch(Exception e){
+    		Logger.info("Error :"+e);
+    		userInfo.isSuccessful = false;
+    		userInfo.errorMsg = e.getMessage();    		
+    	}
+    	return userInfo;
+	}
+		
     public JsonGdataInfo getUserResourceId(GoogleOAuthParameters oauthParameters, String userName) throws IOException {
 	   	/**
 		   * The abbreviated name of Apps for Your Domain recognized by Google.
 		   * The service name is used while requesting an authentication token.
+		   * eg: gapplog.admin1@wilikihanatest.com
 		*/
 		JsonGdataInfo userInfo = new JsonGdataInfo();
 		userInfo.isSuccessful = true;
-    	try{    		
+    	try{
 		  	String APPS_SERVICE = "apps";
 		  	String ServiceURL = "https://www.googleapis.com/apps/identity/v1/USER/";
 		    GoogleService service1 = new GoogleService(APPS_SERVICE, Play.configuration.getProperty("application.name"));
@@ -39,17 +80,18 @@ public class UserInfoService implements AppConstants {
 		    GDataRequest entry = service1.createEntryRequest(feedUrl);
 		    entry.execute();
 	        String body = ServiceUtility.streamToString(entry.getResponseStream());
+	       // Logger.info("***** :< !! >: "+body);
 	        userInfo = SharedServices.getObject(body, JsonGdataInfo.class);
 	        userInfo.isSuccessful=true;
     	}
 	  	catch(ServiceException se){
-	  		Logger.info("*****::ServiceException ::"+se.getResponseBody());
+	  		Logger.info("ServiceException:"+se.getResponseBody());
 	  		userInfo = SharedServices.getObject(se.getResponseBody(), JsonTokenInfo.class);
 	  		userInfo.isSuccessful = false;
 	  		userInfo.errorMsg = userInfo.error.message;	  		
 	  	}    	
     	catch(Exception e){
-    		Logger.info("*****::Error ::"+e);
+    		Logger.info("Error :"+e);
     		userInfo.isSuccessful = false;
     		userInfo.errorMsg = e.getMessage();    		
     	}
@@ -106,7 +148,6 @@ public class UserInfoService implements AppConstants {
       		//return info;    	
         	//return info;
         	return         			"";
-        }
-    */
-
+        }    
+	*/
 }

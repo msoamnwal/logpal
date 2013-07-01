@@ -4,6 +4,12 @@
 
 # Home page
 GET     /controlPanel                               Instructions.index
+GET		/accessDeniedIP								errors.accessIP
+GET		/accessDeniedDomain							errors.accessDomain
+GET		/accessDeniedAPI							errors.accessAPI
+*		/requestAppAccess							requestAccess.index
+*		/userManagement								userManagement.index
+
 GET		/											lg3.LOstep1
 GET     /step2                             			lg3.LOstep2
 #GET     /                                          Reports.route
@@ -16,4 +22,4 @@ GET        /favicon.ico                            404
 GET        /public/                                staticDir:public
 
 # Catch all
-*           /{controller}/{action}                 {controller}.{action}
+*          /{controller}/{action}                  {controller}.{action}

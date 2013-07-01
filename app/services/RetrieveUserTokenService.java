@@ -19,6 +19,7 @@ import play.Play;
 import play.libs.XML;
 import play.libs.XPath;
 
+import model.*;
 import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.Service.GDataRequest;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
@@ -32,16 +33,24 @@ public class RetrieveUserTokenService extends CsvWriter {
     protected String getCsvFilenamePrefix() {
         return "UserTokens-ByClient";
     }
-
+    public static String getServiceName(){
+    	return "AllUserTokensBYClientId";
+    }
+    
 	public static InputStream getUserTokenCrdForClientAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
-		RetrieveUserTokenService srv = new RetrieveUserTokenService();
-		return srv.RetrieveUserTokenCrdForClientAsCSV(oauthParameters, domainUserTkns);
+		String csvText = getUserTokenCrdForClientAsCSVText(true, oauthParameters, domainUserTkns);
+		return new ByteArrayInputStream(csvText.getBytes());		
 	}
-	
-	public InputStream RetrieveUserTokenCrdForClientAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
+	public static String getUserTokenCrdForClientAsCSVText(Boolean isHeaderRequired, GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
+		RetrieveUserTokenService srv = new RetrieveUserTokenService();
+		return srv.RetrieveUserTokenCrdForClientAsCSV(isHeaderRequired, oauthParameters, domainUserTkns);		
+	}
+	public String RetrieveUserTokenCrdForClientAsCSV(Boolean isHeaderRequired,GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
 		StringWriter writer = new StringWriter();		
 		PrintWriter out = new PrintWriter(new BufferedWriter(writer));
-	    out.println(CSV_HEADER_ROW);
+		if(isHeaderRequired){
+			out.println(CSV_HEADER_ROW);
+		}
 	    List<JsonTokenInfo> newTkn = new ArrayList<JsonTokenInfo>();
 		try{						
 			for(JsonTokenInfo domainUserTkn : domainUserTkns){
@@ -85,17 +94,17 @@ public class RetrieveUserTokenService extends CsvWriter {
 	        try {
 	        	writeTokenListToCsv(newTkn, out);
 	        } catch (Exception e) {
-	        	Logger.info("*****::Record in CSV ::"+e);
+	        	Logger.info("Error :"+e);
 	        }			
 	  	}
 	  	catch(Exception e){
-	  		Logger.info("*****::Error ::"+e);
+	  		Logger.info("Error :"+e);
 	  	}
 	    finally {
 	        // close the stream to release the file handle and avoid a leak
 	        out.close();
 	    }
-		return new ByteArrayInputStream(writer.toString().getBytes());
+		return writer.toString();		
 	}	
 
   	/**
@@ -118,23 +127,21 @@ public class RetrieveUserTokenService extends CsvWriter {
 		    entry.execute();
 		    
 	        String body = ServiceUtility.streamToString(entry.getResponseStream());	        
-	        Logger.info("*****::body ::"+body);
 	        //build OBJECT from JSON response text.
 	        info = SharedServices.getObject(body, JsonTokenInfo.class);
 	  	}
 	  	catch(ServiceException se){
-	  		Logger.info("*****::ServiceException ::"+se.getResponseBody());
+	  		Logger.info("ServiceException :"+se.getResponseBody());
 	  		info = SharedServices.getObject(se.getResponseBody(), JsonTokenInfo.class);
 	  		info.isSuccessful = false;
 	  		if(info.error!=null && info.error.message!=null){
 	  			info.displayText = info.error.message;
 	  		}
-	  		Logger.info("*****::ServiceException 1 ::"+info.error.message);
 	  	}
 	  	catch(Exception e){
 	  		info.isSuccessful = false;
 	  		info.displayText = e.getMessage();
-	  		Logger.info("*****::Error ::"+e);
+	  		Logger.info("Error :"+e);
 	  	}      
     
 	  	return info;
@@ -152,12 +159,6 @@ public class RetrieveUserTokenService extends CsvWriter {
 	        out.close();
 	    }
 	}	
-	private static String getValidText(Object obj){
-		if(obj!=null){
-			return obj.toString();
-		}
-		return "";
-	}
 	private void writeTokenToCsv(PrintWriter out, JsonTokenInfo tokenInfo) {        
         // write columns for the row representing the event as follows:
 		

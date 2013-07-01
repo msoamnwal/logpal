@@ -1,42 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>Admin Console</title>
+    <head>
+        <title>#{get 'title' /}</title>
+        <meta charset="utf-8">        
+    	<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	        
+    	<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/stylesheets/main.css'}">
+        <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
+	    <!--
+	      IMPORTANT:
+	      This is Heroku specific styling. Remove to customize.
+	    -->
+	    <link href="@{'/public/stylesheets/heroku.css'}" rel="stylesheet">
+	    <!-- /// -->
+	    <link href="@{'/public/stylesheets/prettify.css'}" rel="stylesheet">
+	    <link href="@{'/public/stylesheets/bootstrap.css'}" rel="stylesheet">
+	    <link href="@{'/public/stylesheets/bootstrap-responsive.css'}" rel="stylesheet">
+		<link href="@{'/public/stylesheets/themes/smoothness/jquery-ui.css'}" rel="stylesheet">
+	    
+        #{get 'moreStyles' /}        
+        
+        <!-- script src="@{'/public/javascripts/jquery-1.6.4.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/script/jquery.js'}"></script-->
 
-    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" media="screen" href="@{'/public/stylesheets/main.css'}" />
-    <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}" />	
+        <script src="@{'/public/javascripts/jquery-1.9.1.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/script/UI/jquery-ui.js'}"></script>
 
-    <link href="@{'/public/stylesheets/bootstrap.css'}" rel="stylesheet">
-    <link href="@{'/public/stylesheets/bootstrap-responsive.css'}" rel="stylesheet">
-    <link href="@{'/public/stylesheets/prettify.css'}" rel="stylesheet">
+		<!-- script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script-->	    
 
-    <!--
-      IMPORTANT:
-      This is Heroku specific styling. Remove to customize.
-    -->
-    <link href="@{'/public/stylesheets/heroku.css'}" rel="stylesheet">
-    <!-- /// -->
-</head>
-
-<body>
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container">
-            <a href="/" class="brand">Logpal Admin Console</a>
-            <a href="/" class="brand" id="heroku">by <strong> ... </strong></a>
-        </div>
-    </div>
-</div>
-<div class="container">
-    #{doLayout /}
-</div>
-	<script src="@{'/public/script/jquery.js'}"></script>
-	<script src="@{'/public/script/bootstrap-tab.js'}"></script>
-	<script src="@{'/public/script/bootstrap-modal.js'}"></script>
-	<script src="@{'/public/script/prettify.js'}"></script>
-</body>
+        
+		<script src="@{'/public/script/bootstrap-tab.js'}"></script>
+		<script src="@{'/public/script/bootstrap-modal.js'}"></script>
+		<script src="@{'/public/script/prettify.js'}"></script>		
+        #{get 'moreScripts' /}
+    </head>
+	<body>
+		<div class="navbar navbar-fixed-top">
+		    <div class="navbar-inner">
+		        <div class="container">
+		            <a href="/" class="brand">Logpal Admin Console</a>
+		            <a href="/" class="brand" id="heroku">by <strong> ... </strong></a>
+		        </div>
+		    </div>
+		</div>
+		<div class="container">
+		    #{doLayout /}		
+		</div>			
+	</body>
 </html>
+
+

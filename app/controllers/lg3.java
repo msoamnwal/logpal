@@ -1,5 +1,12 @@
 package controllers;
 
+import LogpalUtils.CryptoUtils;
+
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.users.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -10,27 +17,28 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import model.MasterQueueConfig;
+import model.User;
 import model.auditActivities;
+import model.mainPageInfoModel;
 
-import jobs.FileCleanupJob;
+//import jobs.MasterQueue;
 import play.Logger;
 import play.Play;
 import play.mvc.Controller;
 import services.ActivityReportService;
 
-import services.CustomerInfo;
+
 import services.CustomerInfoService;
-import services.JsonGdataInfo;
-import services.JsonTokenInfo;
-import services.JsonTokenInfoList;
 import services.RetrieveAllTokenService;
 import services.RetrieveUserTokenService;
 import services.RevokeUserTokenService;
 import services.ServiceUtility;
-import services.UserInfo;
 import services.UserInfoService;
 import services.EmailClientsReportService;
 import services.SharedServices;
+import model.*;
+
 
 
 import com.google.gdata.client.GoogleService;
@@ -70,7 +78,7 @@ public class lg3 extends Controller {
     // Play config props
     private static final String GOOGLE_API_CLIENT_ID_PROP = "google.api.client.id";
     private static final String GOOGLE_API_CLIENT_SECRET_PROP = "google.api.client.secret";
-
+    public static final String GOOGLE_API_ADMINEMAIL = "google.api.client.adminemail";
     // OAuth2 constants
     //Allowed-scopes
     private static final String CUSTOMER_ID_OAUTH2_SCOPE = "https://apps-apis.google.com/a/feeds/policies/";
@@ -115,29 +123,7 @@ public class lg3 extends Controller {
   	  return new Ok();
     }    
     
-    /*
-    // report handlers    
-    private static File handleAuditReport(Credential oAuth2Creds, Integer interval, String admin, String event) throws Exception {
-        AuditReportService service = new AuditReportService();
-        service.credential = oAuth2Creds;
-        service.customerId = session.get(CUSTOMER_ID_SESSION_KEY);
-        return service.createReport(interval, admin, event);
-    }
 
-    private static File handleActivityReport(Credential oAuth2Creds, String month) throws Exception {
-        ActivityReportService service = new ActivityReportService();        
-        service.credential = oAuth2Creds;
-        service.domain = session.get(DOMAIN_SESSION_KEY);
-        return service.createReport(month);
-    }
-
-    private static File handleEmailClientsReport(Credential oAuth2Creds, String month) throws Exception {
-        EmailClientsReportService service = new EmailClientsReportService();
-        service.credential = oAuth2Creds;
-        service.domain = session.get(DOMAIN_SESSION_KEY);
-        return service.createReport(month);
-    }
-    */
     static public void LOstep1(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {    	
         // Create an instance of GoogleOAuthParameters
@@ -154,7 +140,12 @@ public class lg3 extends Controller {
                 USERS_API_OAUTH2_SCOPE+' '+
                 LO3_API_OAUTH2_SCOPE+' '+
 	    		REPORTING_API_OAUTH2_SCOPE+' '+
-	    		USERID_CUSTOMERID_OAUTH2_SECURITY);
+	    		USERID_CUSTOMERID_OAUTH2_SECURITY+' '+
+	    		"https://www.googleapis.com/auth/userinfo.email "+
+	    		"https://www.googleapis.com/auth/userinfo.profile "+
+	    		//https://developers.google.com/admin-sdk/reports/v1/guides/authorizing
+	    		"https://www.googleapis.com/auth/admin.reports.usage.readonly "+
+	    		"https://www.googleapis.com/auth/admin.reports.audit.readonly");
 
         // This sets the callback URL. This is where we want the user to be 
         // sent after they have granted us access. Sometimes, developers 
@@ -177,11 +168,10 @@ public class lg3 extends Controller {
             //  or even close. This assumes the user won't sign out of their 
             // browser or the sessions are swept between the time the user 
             // is redirected and the callback is invoked. 
-            session.put("oauthTokenSecret", oauthParameters.getOAuthTokenSecret());
+            session.put("oauthTokenSecret", new CryptoUtils().encrypt(oauthParameters.getOAuthTokenSecret()));
             redirect(approvalPageUrl);
 
           } catch (OAuthException e) {
-        	  Logger.info("*****Error "+e);
               renderHtml("OAuth Error::"+e.getMessage());
               // We probably want to do something about this error
          }
@@ -199,28 +189,26 @@ public class lg3 extends Controller {
 
         // Remember the token secret that we stashed? Let's get it back
         // now. We need to add it to oauthParameters
-        String oauthTokenSecret = session.get("oauthTokenSecret");
-        oauthParameters.setOAuthTokenSecret(oauthTokenSecret);
-
+        String oauthTokenSecret = new CryptoUtils().decrypt(session.get("oauthTokenSecret"));        
+        oauthParameters.setOAuthTokenSecret( oauthTokenSecret);
+        
         // The query string should contain the oauth token, so we can just
         // pass the query string to our helper object to correctly
         // parse and add the parameters to our instance of oauthParameters
         oauthHelper.getOAuthParametersFromCallback(request.querystring,
           oauthParameters);
 
-        try {
-
-            // Now that we have all the OAuth parameters we need, we can
-            // generate an access token and access token secret. These
-            // are the values we want to keep around, as they are 
-            // valid for all API calls in the future until a user revokes
-            // our access.
-            String accessToken = oauthHelper.getAccessToken(oauthParameters);
+        try {        	
+        	String accessToken = oauthHelper.getAccessToken(oauthParameters);
             String accessTokenSecret = oauthParameters.getOAuthTokenSecret();
-            String render = "<br/>accessTokenSecret : "+accessTokenSecret+"<br/>accessToken : "+accessToken;
-            Logger.info(render);
-            session.put("accessToken", accessToken);
-            session.put("accessTokenSecret", accessTokenSecret);
+            
+            session.put("accessToken", new CryptoUtils().encrypt(accessToken));
+            session.put("accessTokenSecret", new CryptoUtils().encrypt(accessTokenSecret));
+            
+            
+            //Save Access-token to data Store.
+            RecentAdminAccess.set(accessToken, accessTokenSecret);
+            //Init datastore with default settings.
             // In a real application, we want to redirect the user to a new
             // servlet that makes API calls. For the safe of clarity and simplicity,
             // we'll just reuse this servlet for making API calls.
@@ -234,21 +222,24 @@ public class lg3 extends Controller {
             // from reading from the datastore or some other persistence mechanism.
             oauthParameters.setOAuthToken(accessToken);
             oauthParameters.setOAuthTokenSecret(accessTokenSecret);
-            try{
-            	
+            try{            	
+            	//Get Current User-Email
+            	//If super-admin escape all security.            	
             	CustomerInfoService csc = new CustomerInfoService();
             	CustomerInfo customerInfo = csc.getCustomerInfo_current(oauthParameters);
                 //get Customer-Resource-Id For Current User/Logged-in.
-                session.put(CUSTOMER_ID_SESSION_KEY, customerInfo.customerId);            
-                session.put(DOMAIN_SESSION_KEY, customerInfo.domain);
+                session.put(CUSTOMER_ID_SESSION_KEY, new CryptoUtils().encrypt(customerInfo.customerId));            
+                session.put(DOMAIN_SESSION_KEY, new CryptoUtils().encrypt(customerInfo.domain));                
 
-
-                redirect(request.getBase() + "/controlPanel");                
+                //Security Check
+                String reDirectUrl = ServiceUtility.secuiryCheck(session.get("accessToken"), session.get("accessTokenSecret"), new CryptoUtils().decrypt(session.get(DOMAIN_SESSION_KEY)));
+                if(reDirectUrl == null){
+                	reDirectUrl = request.getBase() + "/controlPanel";
+                }
+                redirect(reDirectUrl);
             }catch(Exception e){
-            	Logger.info("*****::Error"+e);
+            	Logger.info("Error :"+e);
             }
-            Logger.info("*****::logged IN");
-            
         } catch (OAuthException e) {
             // Something went wrong. Usually, you'll end up here if we have invalid
             // oauth tokens

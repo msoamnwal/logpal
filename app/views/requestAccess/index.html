@@ -1,0 +1,44 @@
+#{extends 'main.html'/}
+#{set title:'Logpal Access Request' /}
+<style>
+	.page-header {	    
+	    margin: 15px 0 12px!important;
+	}
+	.map {
+	width: 350px;
+	height: 250px;
+	}
+	.ui-tooltip {
+		max-width: 550px;
+	}
+	.borderTr{
+	 	border-bottom: 1px solid #EEEEEE;	    
+    }	
+</style>
+<br/>
+<div class="tabbable">
+	<div class="span8 offset2">
+			        <div class="page-header">
+			            <h5>Submit Request For Application Access</h5>
+			        </div>	        
+			        	<table>
+				        	<tr>
+					        	<td>
+					        		
+					        		<form action="@{requestAccess.makeRequestAcess()}" method="POST" enctype="multipart/form-data">
+					        			<input style="margin-bottom:8px;margin-left:13px;height:30px;" type="submit" value="Make APP Access Request" />
+					        		</form>
+					        	</td>
+					        	<td>
+					        		<div style="margin-left:50px;">&nbsp;</div>
+					        	</td>
+					        	<td>
+					        	   	<a href='/'>Cancel</a> 
+					        	</td>
+					        	<td style="width:100%;">&nbsp;</td>
+					        	
+				        	</tr>
+					    </table>
+					</form>
+			    </div>
+</div>

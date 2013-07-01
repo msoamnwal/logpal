@@ -20,5 +20,8 @@ public class errors extends Controller {
    public static void accessAPI() throws EntityNotFoundException, IOException {
 	   render();
    }	      
-
+   public static void accessPermission() throws EntityNotFoundException, IOException {
+	   render();
+   }	      
+   
 }

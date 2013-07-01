@@ -1,6 +1,8 @@
 package services;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
 
@@ -9,6 +11,17 @@ import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
  */
 public class EmailClientsReportService extends GenericReportingApiService {
 
+	@Override
+    protected String getFirstCoumnNameForCSV() {
+        return "date";
+    }	
+	
+	@Override
+    protected String getLastCoumnNameForCSV() {
+        return "pop_count";
+    }
+
+	
     @Override
     protected String getReportName() {
         return "email_clients";

@@ -1,0 +1,156 @@
+#{extends 'main.html'/}
+#{set title:'Logpal Admin Console' /}
+<style>
+	.page-header {	    
+	    margin: 15px 0 12px!important;
+	}
+	.map {
+	width: 350px;
+	height: 250px;
+	}
+	.ui-tooltip {
+		max-width: 550px;
+	}
+	.borderTr{
+	 	border-bottom: 1px solid #EEEEEE;	    
+    }
+
+	table.user {
+    	border: solid #EEEEEE 2px;
+    	border-spacing: 10px;
+    	border-collapse:collapse;    	
+	}
+	table.user td {
+		padding:7px 10px 4px 10px;    	
+    	text-align:center;
+	}
+</style>
+<script>	
+	$(function() {		
+		$("input[type='checkbox']").change(function(){
+	  		$(this).next("input").val($(this).is(':checked')?"checked":"unchecked");
+		});
+		$("input[type='radio']").change(function(){
+			//var allChks = $('input:radio[name='+$(this).attr("name")+']');
+			
+	  		//(this).next("input").val($(this).is(':checked')?"checked":"unchecked");
+			$("input[type='radio']").each(function() {
+				$(this).next("input").val($(this).is(':checked')?"checked":"unchecked");
+		    });	  		
+	  		
+		});
+	});
+</script>
+ <br/>
+<div class="tabbable">
+	<ul class="nav nav-tabs">
+	  	#{if mainSettings.isSuperAdmin==true || (role.indexOf("Reports")>-1) }
+			<li ><a href="/controlPanel" >Download Reports</a></li>
+	  	#{/if}
+	  	#{if mainSettings.isSuperAdmin==true || (role.indexOf("Tokens")>-1) }
+	  		<li><a href="/controlPanel" >Token Management</a></li>
+	  	#{/if}
+		#{if mainSettings.isSuperAdmin==true || (role.indexOf("MasterQueue")>-1) }
+		  <li><a href="/controlPanel" >MasterQueue Configuration</a></li>
+		#{/if}
+		#{if mainSettings.isSuperAdmin==true || (role.indexOf("EmailConf")>-1) }
+		  <li><a href="/controlPanel" >Email Configuration</a></li>
+		#{/if}
+		#{if mainSettings.isSuperAdmin==true || (role.indexOf("IPAccess")>-1) }
+		  <li><a href="/controlPanel" >Security - IP Access</a></li>
+		#{/if}
+		#{if mainSettings.isSuperAdmin==true || (role.indexOf("UserAccess")>-1) }
+		  <li class="active"><a href="#UserManagement" data-toggle="tab">User Management</a></li>
+		#{/if}
+	</ul>
+	<div class="tab-content">
+		<div id="report_tab" class="tab-pane active">
+	    	<!--  Tab1 Content Start -->	    	
+			<table>
+				<tr>
+					<td valign="top">
+						<!--  UserManagement tabs class="nav nav-tabs"-->
+						<ul style="margin-bottom:0px!important;width:130px;">						  	
+							  	<li class="active"><a href="/userManagement?defaultSelection=AccessRequest" >Activation Request</a></li>
+							  	<li><a href="/userManagement?defaultSelection=Active" >Activated Users</a></li>
+							  	<li ><a href="/userManagement?defaultSelection=Blocked" >Blocked Users</a></li>						  	
+							  	<li ><a href="/userManagement?defaultSelection=Deactivate" >Deactivated Users</a></li>
+						</ul>
+					</td>
+					<td style="width:800px;">
+						<div class="tab-content">							
+							<div id="ActivationRequest" class="tab-pane active">
+						    	<!--  Tab2 Content Start -->
+								<div class="row">
+								    <div style="margin-left:60px;">
+								        <div class="page-header">
+								            <h5>${PageHeader}</h5>								            
+								        </div>
+								        <form action="@{UserManagement.index()}" method="POST" enctype="multipart/form-data">
+								        	<input type="hidden" name="defaultSelection" id="defaultSelection" value="${defaultSelection}"/>
+								        	<table class="user">
+									        	<tr bgcolor="dfdfdf" style="font-size:1.2em;">
+									        		<td rowspan="2" style="border-right: 1px solid #777777">User Name </td>									        	
+									        		<td colspan="2" style="border-right: 1px solid #777777">Access Rights</td>
+									        		<td colspan="3" style="border-right: 1px solid #777777">Administrator Rights</td>
+									        		<td colspan="3" style="border-right: 1px solid #777777" style="color:red;">Action</td>
+									        	</tr>
+									        	<tr bgcolor="efefef">									        		
+									        		<td>Reports</td><td style="border-right: 1px solid #777777">Tokens</td>
+									        		<td>MasterQueue</td><td>IPAccess</td>
+									        		<td style="border-right: 1px solid #777777">UserAccess</td>
+									        		<td>Activate</td><td>Block</td><td>DeActivate</td>
+									        	</tr>
+									        	#{list items:usrForUI, as:'user'}
+									        		<tr>
+									        			<td style="border-right: 1px solid #777777">${user.getUserName()}
+									        				<input type="hidden" name="userName" id="userName" value="${user.getUserName()}"/>
+									        			</td>
+									        			<td >
+									        				<input type="checkbox" ${user.getRoleUI("Reports")}/>
+									        				<input type="hidden" name="isReports" id="isReports" value='${user.getRoleUI("Reports")}'/>
+									        			</td>
+									        			<td style="border-right: 1px solid #777777">
+									        				<input type="checkbox" ${user.getRoleUI("Tokens")} />
+									        				<input type="hidden" name="isTokens" id="isTokens" value='${user.getRoleUI("Tokens")}'/>
+									        			</td>
+									        			<td> 
+									        				<input type="checkbox" ${user.getRoleUI("MasterQueue")} />
+									        				<input type="hidden" name="isMasterQueue" id="isMasterQueue" value='${user.getRoleUI("MasterQueue")}'/>
+									        			</td><td >
+									        				<input type="checkbox" ${user.getRoleUI("IPAccess")} />
+									        				<input type="hidden" name="isIPAccess" id="isIPAccess" value='${user.getRoleUI("IPAccess")}'/>
+									        			</td>
+									        			<td style="border-right: 1px solid #777777">
+									        				<input type="checkbox" ${user.getRoleUI("UserAccess")}/>
+									        				<input type="hidden" name="isUserAccess" id="isUserAccess" value='${user.getRoleUI("UserAccess")}'/>
+									        			</td>
+									        			<td>
+									        				<input type="radio" name="persmission" ${user.getStatusUI("Active")}/>
+									        				<input type="hidden" name="isActivate" id="isActivate" value='${user.getStatusUI("Active")}'/>
+									        			</td>									        			
+									        			<td>
+									        				<input type="radio" name="persmission" ${user.getStatusUI("Blocked")}/>
+									        				<input type="hidden" name="isBlock" id="isBlock" value='${user.getStatusUI("Blocked")}'/>
+									        			</td>
+									        			<td>
+									        				<input type="radio" name="persmission" ${user.getStatusUI("Deactivate")} />
+									        				<input type="hidden" name="isDeActivate" id="isDeActivate" value='${user.getStatusUI("Deactivate")}'/>
+									        			</td>
+									        		</tr>								        			
+									        	#{/list}
+								        	</table> 
+								        	<br/>
+								        	<input type="submit" value="Update User Status"/>
+								        </form>
+								        
+									</div>
+								</div>
+							</div>							
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>

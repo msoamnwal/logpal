@@ -18,6 +18,7 @@ import play.Play;
 import play.libs.XML;
 import play.libs.XPath;
 
+import model.*;
 import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.Service.GDataRequest;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
@@ -31,7 +32,9 @@ public class RevokeUserTokenService extends CsvWriter {
     }
     
     private static final String CSV_HEADER_ROW = "isSuccessful, errorMsg, issueDomain, customerId, user, UserId, clientId";
-
+    public static String getServiceName(){
+    	return "RevokeAssignedToken";
+    }
 	/*
 	 	//Revoking a user's token credential issued for a specific client.
 
@@ -68,12 +71,17 @@ public class RevokeUserTokenService extends CsvWriter {
 	  	return info;
 	}
 	public static InputStream getRevokeUserTokenCrdForClientAsCSV (
-			GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> tokens) throws IOException {
+		GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> tokens) throws IOException {
+		String csvText = getRevokeUserTokenCrdForClientAsCsvText(true, oauthParameters, tokens);
+		return  new ByteArrayInputStream(csvText.getBytes());
+	}
+	public static String getRevokeUserTokenCrdForClientAsCsvText (
+		Boolean isHeaderRequired, GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> tokens) throws IOException {
 		RevokeUserTokenService srv = new RevokeUserTokenService();
 		return srv.RevokeUserTokenStatusAsCSV(oauthParameters, tokens);
 		
-	}	
-	public InputStream RevokeUserTokenStatusAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
+	}	//getRevokeUserTokenCrdForClientAsCSVText
+	public String RevokeUserTokenStatusAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
 		StringWriter writer = new StringWriter();		
 		PrintWriter out = new PrintWriter(new BufferedWriter(writer));		
 		try{						
@@ -111,9 +119,9 @@ public class RevokeUserTokenService extends CsvWriter {
 			writeTokenListToCsv( domainUserTkns, out);	
 		}
 	  	catch(Exception e){
-	  		Logger.info("*****::Error ::"+e);
+	  		Logger.info("Error :"+e);
 	  	}		
-		return new ByteArrayInputStream(writer.toString().getBytes());
+		return writer.toString();
 	}	
 	private void writeTokenListToCsv(List<JsonTokenInfo> tokens, PrintWriter out) throws IOException {		
 	    out.println(CSV_HEADER_ROW);
@@ -128,13 +136,6 @@ public class RevokeUserTokenService extends CsvWriter {
 	        out.close();
 	    }
 	}	
-	private static String getValidText(Object obj){
-		if(obj!=null){
-			return obj.toString();
-		}
-		return "";
-	}
-
 	
 	private void writeTokenToCsv(PrintWriter out, JsonTokenInfo tokenInfo) {        
         // write columns for the row representing the event as follows:

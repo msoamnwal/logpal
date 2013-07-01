@@ -19,6 +19,7 @@ import play.Play;
 import play.libs.XML;
 import play.libs.XPath;
 
+import model.*;
 import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.Service.GDataRequest;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
@@ -32,16 +33,25 @@ public class RetrieveAllTokenService extends CsvWriter {
     protected String getCsvFilenamePrefix() {
         return "UserTokens-ALL";
     }
-
+    public static String getServiceName(){
+    	return "AllUserTokens";
+    }
+    
 	public static InputStream getAllUserTokenCrdAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
-		RetrieveAllTokenService srv = new RetrieveAllTokenService();
-		return srv.RetrieveAllUserTokenCrdAsCSV(oauthParameters, domainUserTkns);
+		String csvText = getAllUserTokenCrdAsCSVText(true, oauthParameters, domainUserTkns);
+		return new ByteArrayInputStream(csvText.getBytes());
 	}
-	public InputStream RetrieveAllUserTokenCrdAsCSV(GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
+	public static String getAllUserTokenCrdAsCSVText(Boolean isHeaderRequired, GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
+		RetrieveAllTokenService srv = new RetrieveAllTokenService();
+		return  srv.RetrieveAllUserTokenCrdAsCSV(isHeaderRequired, oauthParameters, domainUserTkns);		
+	}
+	public String RetrieveAllUserTokenCrdAsCSV(Boolean isHeaderRequired, GoogleOAuthParameters oauthParameters, List<JsonTokenInfo> domainUserTkns) throws IOException {
 		//File csvFile = createTempCsvFile();		 
 		StringWriter writer = new StringWriter();		
 		PrintWriter out = new PrintWriter(new BufferedWriter(writer));
-	    out.println(CSV_HEADER_ROW);		
+		if(isHeaderRequired){
+			out.println(CSV_HEADER_ROW);
+		}
 		try{						
 			for(JsonTokenInfo domainUserTkn : domainUserTkns){
                 //get Customer-Resource-Id By Domain_name
@@ -86,18 +96,18 @@ public class RetrieveAllTokenService extends CsvWriter {
 		        try {
 		        	writeTokenListToCsv(info, out);
 		        } catch (Exception e) {
-		        	Logger.info("*****::Record in CSV ::"+e);
+		        	Logger.info("Error:"+e);
 		        }
 			}			
 	  	}
 	  	catch(Exception e){
-	  		Logger.info("*****::Error ::"+e);
+	  		Logger.info("Error :"+e);
 	  	}
 	    finally {
 	        // close the stream to release the file handle and avoid a leak
 	        out.close();
 	    }
-		return new ByteArrayInputStream(writer.toString().getBytes());		
+		return writer.toString();		
 	}
 
   	/**
@@ -132,12 +142,7 @@ public class RetrieveAllTokenService extends CsvWriter {
             }	
         }
 	}
-	private static String getValidText(Object obj){
-		if(obj!=null){
-			return obj.toString();
-		}
-		return "";
-	}
+
 	private void writeTokenToCsv(PrintWriter out, JsonTokenInfo tokenInfo) {        
         // write columns for the row representing the event as follows:
 		

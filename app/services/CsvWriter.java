@@ -37,7 +37,12 @@ public abstract class CsvWriter implements AppConstants {
     protected void delimitColumn(PrintWriter out) {
         out.print(',');
     }
-
+    protected String getValidText(Object obj){
+		if(obj!=null){
+			return obj.toString();
+		}
+		return "";
+	}
     protected void beginQuotedColumnValue(PrintWriter out) {
         out.print('"');
     }

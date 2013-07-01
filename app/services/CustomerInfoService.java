@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Map;
 
+import model.*;
+
 import org.w3c.dom.Document;
 
 import play.Logger;
@@ -61,7 +63,7 @@ public class CustomerInfoService implements AppConstants {
 	        info.domain = XPath.selectText("//property[@name='customerOrgUnitName']/@value", xml);
     	}
     	catch(Exception e){
-    		Logger.info("*****::Error ::"+e);
+    		Logger.info("Error :"+e);
     		return info;
     	}      
   		//return info;    	
@@ -94,13 +96,13 @@ public class CustomerInfoService implements AppConstants {
 	        info.isSuccessful=true;
     	}    	
 	  	catch(ServiceException se){
-	  		Logger.info("*****::ServiceException ::"+se.getResponseBody());
+	  		Logger.info("ServiceException :"+se.getResponseBody());
 	  		info = SharedServices.getObject(se.getResponseBody(), JsonTokenInfo.class);
 	  		info.isSuccessful = false;
 	  		info.errorMsg = info.error.message;	  		
 	  	}    	
     	catch(Exception e){
-    		Logger.info("*****::Error ::"+e);
+    		Logger.info("Error :"+e);
     		info.isSuccessful = false;
     		info.errorMsg = e.getMessage();    		
     	}

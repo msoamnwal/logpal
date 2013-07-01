@@ -1,4 +1,4 @@
-package services;
+package model;
 
 import com.google.api.client.util.Key;
 

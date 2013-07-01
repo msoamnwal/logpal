@@ -55,27 +55,30 @@ public class RetriveAuditReportingService extends CsvWriter {
     private static final int MAX_RESULTS_PER_PAGE = 100;
     private static final String CONTINUATION_TOKEN_PARAM_NAME = "continuationToken";
 
+
     @Override
     protected String getCsvFilenamePrefix() {
         return "audit-log";
     }
-	public auditActivities RetriveAuditReporting(GoogleOAuthParameters oauthParameters, String ServiceURL, String customerId, String applicationId, String reportCriteria) throws IOException {
+
+	//public auditActivities RetriveAuditReporting(GoogleOAuthParameters oauthParameters, String ServiceURL, String customerId, String applicationId, String reportCriteria) throws IOException {
+    public auditActivities RetriveAuditReporting(GoogleOAuthParameters oauthParameters, String ServiceURL) throws IOException {
 		auditActivities info = new auditActivities();		
-	  	try{    		
-	  		String APPS_SERVICE = "apps";
-	  		if(ServiceURL==null ||ServiceURL==""){
-	  			ServiceURL = "https://www.googleapis.com/apps/reporting/audit/v1/"+customerId+"/"+applicationId+"?maxResults="+MAX_RESULTS_PER_PAGE+"&"+reportCriteria;
-	  		}
+	  	try{
+	  		String APPS_SERVICE = "apps";	  		
+  			//The above url is from old logpal code and will be deprecated by November 15, 2013. 
+  			//ServiceURL = "https://www.googleapis.com/apps/reporting/audit/v1/"+customerId+"/"+applicationId+"?maxResults="+MAX_RESULTS_PER_PAGE+"&alt=json&"+reportCriteria;
+
 		    GoogleService service1 = new GoogleService(APPS_SERVICE, Play.configuration.getProperty("application.name"));		    
 		  	service1.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer());
 		  	URL enrtyUrl = new URL(ServiceURL);		  	
-		  	
 		    GDataRequest entry = service1.createEntryRequest(enrtyUrl);
 		    entry.execute();
-	        String body = ServiceUtility.streamToString(entry.getResponseStream());    	        
-	        info = SharedServices.getObject(body, auditActivities.class);		        
+	        String body = ServiceUtility.streamToString(entry.getResponseStream());    
+	        info = SharedServices.getObject(body, auditActivities.class);
 	  	}
 	  	catch(ServiceException se){
+	  		se.printStackTrace();
 	  		info = SharedServices.getObject(se.getResponseBody(), auditActivities.class);
 	  		info.isSuccessful = false;
 	  		if(info.error!=null && info.error.message!=null){
@@ -83,35 +86,35 @@ public class RetriveAuditReportingService extends CsvWriter {
 	  		}
 	  	}
 	  	catch(Exception e){
+	  		e.printStackTrace();
 	  		info.isSuccessful = false;
 	  		info.displayText = e.getMessage();
 	  	}      
 	  	return info;
 	}
 
-	public InputStream RetriveAuditReportingAsCSV (GoogleOAuthParameters oauthParameters, 
-		String customerId, String reportCriteria)  throws IOException {
+	public InputStream RetriveAuditReportingAsCSV (GoogleOAuthParameters oauthParameters, String ServiceURL)  throws IOException {
 		StringWriter writer = new StringWriter();		
 		PrintWriter out = new PrintWriter(new BufferedWriter(writer));
 	    out.println(CSV_HEADER_ROW);		
 		try{						
 			RetriveAuditReportingService srv = new RetriveAuditReportingService();
-			String enrtyUrl = "";
-			while(true){				
-				auditActivities info = srv.RetriveAuditReporting(oauthParameters, enrtyUrl, customerId, (""+GOOGLE_APPS_CONTROL_PANEL_APPLICATION_ID), reportCriteria);
+			ServiceURL += "&maxResults="+MAX_RESULTS_PER_PAGE;
+			while(true){
+				auditActivities info = srv.RetriveAuditReporting(oauthParameters, ServiceURL);
 		        if(info.items!=null && info.items.length>0){
 		        	//Write Content To CSV
 		        	writeTokenListToCsv(info, out);
 		        }
-		        if(info.next!=null && info.next!=""){
-		        	enrtyUrl = info.next;
+		        if(info.next!=null && !"".equalsIgnoreCase(info.next)){
+		        	ServiceURL = info.next;
 		        }else{
 		        	break;
 		        }
-		  	}			
+		  	}
 	  	}
 	  	catch(Exception e){
-	  		Logger.info("*****::Error 1 ::"+e);
+	  		Logger.info("Error :"+e);
 	  	}
 	    finally {
 	        // close the stream to release the file handle and avoid a leak
@@ -126,12 +129,7 @@ public class RetriveAuditReportingService extends CsvWriter {
             }	
         }
 	}
-	private static String getValidText(Object obj){
-		if(obj!=null){
-			return obj.toString();
-		}
-		return "";
-	}
+	
     private static String toRfc3339Time(long time) {   	
         return new com.google.api.client.util.DateTime(time, 0 /*UTC*/).toStringRfc3339();
     }
@@ -146,10 +144,9 @@ public class RetriveAuditReportingService extends CsvWriter {
         	for (model.event  evt: tokenInfo.events) {
         		out.println();
                 // isSuccessful
-                printColumn(out, getValidText(tokenInfo.isSuccessful));                
+                printColumn(out, getValidText(tokenInfo.isSuccessful));
                 // errorMsg
                 printColumn(out, getValidText(tokenInfo.errorMsg));
-                //
         		printColumn(out, getValidText(evt.name));
         		printColumn(out, getValidText(evt.eventType));        		
         		Boolean isDelimitFieldWithinColumn = false;
@@ -164,24 +161,22 @@ public class RetriveAuditReportingService extends CsvWriter {
                         out.print(nmVal.name+"="+nmVal.value);
         			}
         		}
-        		endQuotedColumnValue(out);        		
+        		endQuotedColumnValue(out);
         		//Actor email/user
-        		printColumn(out, getValidText(tokenInfo.actor.email));        		
+        		printColumn(out, getValidText(tokenInfo.actor.email));
         		// ipAddress
                 printColumn(out, getValidText(tokenInfo.ipAddress));
                 //Check Id tag for timestamp.
                 if (tokenInfo.id != null ) {
-                	if(tokenInfo.id.time!=null){        	
+                	if(tokenInfo.id.time!=null){
                 		//Print Datetime
                 		//long startTime = DateTime.now().minusMinutes(Integer.parseInt(tokenInfo.id.time)).getMillis();
                 		//toRfc3339Time(startTime)
                 		printColumn(out, getValidText(tokenInfo.id.time));
                 	}
-                }                
+                }
         	}
             // finished with row
-                    	
-        }        
-    }		
-	
+        }
+    }
 }
