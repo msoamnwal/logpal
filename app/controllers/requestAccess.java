@@ -27,17 +27,17 @@ public class requestAccess extends Controller {
 		}
 		 mainPageInfoModel mainSettings = mainPageInfoModel.get(
 				 session.get("accessToken"), session.get("accessTokenSecret"));
-		 Logger.info("requestAccess :"+mainSettings.isSuperAdmin);
+		 //Logger.info("requestAccess :"+mainSettings.isSuperAdmin);
 	     if(mainSettings.isSuperAdmin){
 	     }else{
-	    	 Logger.info("requestAccess NO :"+mainSettings.isSuperAdmin);
+	    	 //Logger.info("requestAccess NO :"+mainSettings.isSuperAdmin);
              List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);                
              //User visiting App for first time, and making request for access.
              User.set(mainSettings.loggedInUsrInfo.data.email, mainSettings.loggedInUsrInfo.data.email, 
             		 mainSettings.loggedInUsrInfo.data.email, UserStatus.AccessRequest, UserRoles.None);            	                 	
              redirect(Http.Request.current().getBase() + "/requestAppAccess");
 	     }
-	    Logger.info("requestAccess Test :");
+	    //Logger.info("requestAccess Test :");
 		render();
 	}
 	public static void msgBlocked() throws EntityNotFoundException, IOException {
@@ -58,9 +58,9 @@ public class requestAccess extends Controller {
 		 mainPageInfoModel mainSettings = mainPageInfoModel.get(
 				 session.get("accessToken"), session.get("accessTokenSecret"));
 	     if(mainSettings.isSuperAdmin){
-	    	 Logger.info("requestAccess index  :"+mainSettings.isSuperAdmin);
+	    	 //Logger.info("requestAccess index  :"+mainSettings.isSuperAdmin);
 	     }else	{
-	    	 Logger.info("requestAccess NO :"+mainSettings.isSuperAdmin);
+	    	 //Logger.info("requestAccess NO :"+mainSettings.isSuperAdmin);
              List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);
         	 //User already visited App.
              if(matchedUsers.size()>0){

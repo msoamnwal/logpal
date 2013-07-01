@@ -127,13 +127,13 @@ public class ServiceUtility {
 		 mainPageInfoModel mainSettings = mainPageInfoModel.get(
 				 accessToken, 
 				 accessTokenSecret);
-		 Logger.info("*****mainSettings.isSuperAdmin 11 :"+ mainSettings.isSuperAdmin);
+		 //Logger.info("*****mainSettings.isSuperAdmin 11 :"+ mainSettings.isSuperAdmin);
 	     if(!mainSettings.isSuperAdmin){	   
 	    	 String retUrl = secuiryCheck(accessToken, accessTokenSecret, userDomain, mainSettings);
-	    	 Logger.info("*****mainSettings.retUrl 11 :"+ retUrl);
+	    	 //Logger.info("*****mainSettings.retUrl 11 :"+ retUrl);
 	    	 if(retUrl==null){
 	             List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);
-	             Logger.info("*****mainSettings.matchedUsers 11 :"+ matchedUsers);
+	             //Logger.info("*****mainSettings.matchedUsers 11 :"+ matchedUsers);
 	             if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
 	            	 //User visiting App for first time.
 	            	 return Http.Request.current().getBase() + "/requestAppAccess";

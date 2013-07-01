@@ -73,7 +73,7 @@ public class User{
 		etUser.setProperty("LastUpdated", createDateTime.toString());//new CryptoUtils().encrypt(
 		DatastoreService DataStoreSvc = DatastoreServiceFactory.getDatastoreService();
 		DataStoreSvc.put(etUser);				
-		Logger.info("***** @@@ :"+ zUserEmail + " >> " + etUser);
+		//Logger.info("***** @@@ :"+ zUserEmail + " >> " + etUser);
 	}
 	public void setProperty(String field, String value){
 		etUser.setProperty(field, value);
@@ -100,7 +100,7 @@ public class User{
 		if(etUser==null){
 			return UserStatus.None;
 		}
-		Logger.info("*****.getStatus() !! :"+ etUser.getProperty(Status));
+		//Logger.info("*****.getStatus() !! :"+ etUser.getProperty(Status));
 		return UserStatus.get(getStringValueFromEntity(Status, false));		
 	}
 	//For UI-checkbox.
@@ -108,9 +108,9 @@ public class User{
 		if(etUser==null){
 			return "unchecked";
 		}
-		Logger.info("*****.getStatusUI :: "+status+"   >> "+UserStatus.get(getStringValueFromEntity(Status, false)).toString());
+		//Logger.info("*****.getStatusUI :: "+status+"   >> "+UserStatus.get(getStringValueFromEntity(Status, false)).toString());
 		if( UserStatus.get(getStringValueFromEntity(Status, false)).toString().equalsIgnoreCase(status)){
-			Logger.info("*****.getStatusUI :: "+"checked");
+			//Logger.info("*****.getStatusUI :: "+"checked");
 			return "checked";
 		}
 		return "unchecked";
@@ -144,7 +144,7 @@ public class User{
 	}
 	private static void buildQuery(Query q, Query.FilterOperator Operator, String fieldName, String fieldValue, boolean isEncrypt){
 		if(fieldName!=null && fieldName.trim()!="" && fieldValue!=null && fieldValue.trim()!=""){
-			Logger.info("*****Size "+fieldName+" :"+ fieldValue );
+			//Logger.info("*****Size "+fieldName+" :"+ fieldValue );
 			/*if(isEncrypt){
 				q.addFilter(fieldName, Operator, new CryptoUtils().encrypt(fieldValue));
 			}else{*/
@@ -166,17 +166,17 @@ public class User{
 		
 		// PreparedQuery contains the methods for fetching query results
 		// from the datastore
-		Logger.info("*****Query :"+ q);
+		//Logger.info("*****Query :"+ q);
 		PreparedQuery pq =  datastore.prepare(q);
 
 		for(Entity result: pq.asIterable()){	
-			Logger.info("*****CHECK  !! :"+result);
+			//Logger.info("*****CHECK  !! :"+result);
 			users.add(new User(result));
 			//String firstName = (String) result.getProperty("firstName");
 						
 			
 		}
-		Logger.info("*****Size !! :"+ users.size());
+		//Logger.info("*****Size !! :"+ users.size());
 		return users;
 	}
 	/*

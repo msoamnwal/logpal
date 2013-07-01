@@ -18,7 +18,7 @@ public enum UserStatus {
 		return name;
 	}	
 	public static UserStatus get(String status){
-		Logger.info("*****.status !! :"+ status);
+		//Logger.info("*****.status !! :"+ status);
 		UserStatus stat = UserStatus.Invalid;
 		if(UserStatus.Active.toString().equalsIgnoreCase(status)){
 			stat= UserStatus.Active;

@@ -39,12 +39,12 @@ public class mainPageInfoModel {
         mainModel.defaultSetting = mainObj;        
         UserDataForAuthDetail loggedinUsrInfo = usrSvr.getUserDetailByToken(oauthParameters, new CryptoUtils().decrypt(accessToken));
         mainModel.loggedInUsrInfo = loggedinUsrInfo;  
-        Logger.info("mainModel.loggedInUsrInfo :"+mainModel.loggedInUsrInfo);
+        //Logger.info("mainModel.loggedInUsrInfo :"+mainModel.loggedInUsrInfo);
         if(mainModel.loggedInUsrInfo!=null && mainModel.loggedInUsrInfo.data !=null){
 			mainModel.isSuperAdmin = (Play.configuration.getProperty(lg3.GOOGLE_API_ADMINEMAIL).toLowerCase()).contains(mainModel.loggedInUsrInfo.data.email.toLowerCase());
-			Logger.info("mainModel.isSuperAdmin :"+mainModel.isSuperAdmin);
+			//Logger.info("mainModel.isSuperAdmin :"+mainModel.isSuperAdmin);
 		}else{
-			Logger.info("mainModel.isSuperAdmin False:"+mainModel.loggedInUsrInfo);
+			//Logger.info("mainModel.isSuperAdmin False:"+mainModel.loggedInUsrInfo);
 			mainModel.isSuperAdmin = false;
 		}
 		//Calculating MasterQueue Details
