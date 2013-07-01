@@ -605,17 +605,23 @@ public class Instructions extends Controller {
     	mainPageInfoModel mainSettings = mainPageInfoModel.get(
     			session.get("accessToken"), 
     			session.get("accessTokenSecret"));
-        List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);	             
-        if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
-        	//User visiting App for first time.
-        	redirect(Http.Request.current().getBase() + "/requestAppAccess");
-        }else{
-       	 //Validate User Permission/Role allowed.	            	 
-       	 if(matchedUsers.get(0).getRole()==null){
-       		redirect(Http.Request.current().getBase() + "/accessPermission");
-       	 }
-        }
-        String role = matchedUsers.get(0).getRole();
+    	String role ="";
+    	if(mainSettings.isSuperAdmin){
+    		role = "SuperAdmin";
+    	}else{
+	        List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);	             
+	        if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
+	        	//User visiting App for first time.
+	        	redirect(Http.Request.current().getBase() + "/requestAppAccess");
+	        }else{
+	       	 //Validate User Permission/Role allowed.	            	 
+	       	 if(matchedUsers.get(0).getRole()==null){
+	       		redirect(Http.Request.current().getBase() + "/accessPermission");
+	       	 }
+	        }	        
+	        role = matchedUsers.get(0).getRole();
+    	}
+        
     	render(mainSettings, role);
     }
 }

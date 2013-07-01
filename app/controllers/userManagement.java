@@ -114,15 +114,19 @@ public class userManagement extends Controller {
         	redirect(request.getBase() + "/userManagement?defaultSelection="+defaultSelection);
         }else{
 	       	usrForUI =  User.getUsers("", UserStatus.get(defaultSelection));
-	        List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);	             
-	        if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
-	        	//User visiting App for first time.
-	        	redirect(Http.Request.current().getBase() + "/requestAppAccess");
+	        List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);
+	        if(mainSettings.isSuperAdmin){
+	        	
 	        }else{
-	       	 //Validate User Permission/Role allowed.	            	 
-	       	 if(matchedUsers.get(0).getRole()==null){
-	       		redirect(Http.Request.current().getBase() + "/accessPermission");
-	       	 }
+		        if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
+		        	//User visiting App for first time.
+		        	redirect(Http.Request.current().getBase() + "/requestAppAccess");
+		        }else{
+		       	 //Validate User Permission/Role allowed.	            	 
+		       	 if(matchedUsers.get(0).getRole()==null){
+		       		redirect(Http.Request.current().getBase() + "/accessPermission");
+		       	 }
+		        }
 	        }
 	        String role = matchedUsers.get(0).getRole();	       	
 	        render(usrForUI, defaultSelection, PageHeader, mainSettings, role);
