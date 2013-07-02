@@ -115,8 +115,9 @@ public class userManagement extends Controller {
         }else{
 	       	usrForUI =  User.getUsers("", UserStatus.get(defaultSelection));
 	        List<User>matchedUsers = User.getUsers(mainSettings.loggedInUsrInfo.data.email, UserStatus.None);
+	        String role ="";	        
 	        if(mainSettings.isSuperAdmin){
-	        	
+	        	role = "SuperAdmin";
 	        }else{
 		        if(matchedUsers.size()==0 || (UserStatus.Active!= matchedUsers.get(0).getStatus())){
 		        	//User visiting App for first time.
@@ -125,10 +126,11 @@ public class userManagement extends Controller {
 		       	 //Validate User Permission/Role allowed.	            	 
 		       	 if(matchedUsers.get(0).getRole()==null){
 		       		redirect(Http.Request.current().getBase() + "/accessPermission");
+		       	 }else{
+		       		 role = matchedUsers.get(0).getRole();
 		       	 }
 		        }
-	        }
-	        String role = matchedUsers.get(0).getRole();	       	
+	        }	        	       	
 	        render(usrForUI, defaultSelection, PageHeader, mainSettings, role);
         }
     }
